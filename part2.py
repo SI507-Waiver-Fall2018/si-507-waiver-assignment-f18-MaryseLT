@@ -3,26 +3,9 @@ import sys
 import sqlite3
 
 
-# /////////////////////////////////////////
-# ////////// README Instructions //////////
-# /////////////////////////////////////////
-
 # FILENAME: part2.py
 
 # NOTE: Use sqlite3.
-
-# USAGE: the program does different things based on the arguments passed in.
-
-    # part2.py customers: prints the list of all customers
-
-    # part2.py employees: prints the list of all employees
-
-    # part2.py orders cust=<customer id>: prints the list of order dates for all orders placed for the specified customer. Use the customer ID for this command.
-
-    # part2.py orders emp=<employee last name>: prints the list of order dates for all orders managed by the specified employee. Use the employee last name for this command.
-
-    # SAMPLE OUTPUT: The sample output is large, so it's on another page: Sample Output
-
 
 # ////////////////////////////////////////////
 # /////////////// Start Coding ///////////////
