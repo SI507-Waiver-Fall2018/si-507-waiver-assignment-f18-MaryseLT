@@ -2,6 +2,7 @@
 import plotly.plotly as py
 import plotly.graph_objs as go
 
+import csv
 
 # /////////////////////////////////////////
 # ////////// README Instructions //////////
@@ -24,3 +25,49 @@ import plotly.graph_objs as go
 
 # Code here should involve creation of the bar chart as specified in instructions
 # And opening / using the CSV file you created earlier with noun data from tweets
+
+
+data = [] # List of noun,count Tuples
+nouns = [] # nouns
+count = [] # count
+
+# /////////////////////////////////////////////////////////
+# ////////// Open the CSV and Load to Tuple List //////////
+# /////////////////////////////////////////////////////////
+
+with open('twitter_results.csv') as f:
+    reader = csv.reader(f)
+    next(reader) #skip username
+    next(reader) #skip header
+    for row in reader:
+        data.append(row)
+
+#print(data)
+
+# ////////////////////////////////////////////////////////
+# ////////// Sort Tuples to Noun & Count Lists  //////////
+# ////////////////////////////////////////////////////////
+
+for row in data:
+    nouns.append(row[0])
+    count.append(row[1])
+
+
+#print(x)
+#print(y)
+
+# ///////////////////////////////////////////////////////
+# ////////// Put Variables into Plotly Format  //////////
+# ///////////////////////////////////////////////////////
+
+data = [go.Bar(x=nouns,y=count)]
+
+layout = go.Layout(title="Most Common Tweeted Nouns", xaxis=dict(title='NOUNS'), yaxis=dict(title='Count'))
+
+
+# ////////////////////////////////////////
+# ////////// KEEP AT THE BOTTOM //////////
+# ////////////////////////////////////////
+
+fig = go.Figure(data=data, layout=layout)
+py.iplot(fig, filename='part4_viz_image.png')
