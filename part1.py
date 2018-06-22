@@ -5,18 +5,13 @@ import json
 import sys
 
 import csv
-import secrets
+import secrets # my py file containing my twitter access requirements
 
-# /////////////////////////////////////////
-# ////////// README Instructions //////////
-# /////////////////////////////////////////
 
 # Part 1: Create a program to analyze the twitter timeline of a selected user.
     # FILENAME: part1.py
 
     # ARGUMENTS: the program takes two arguments--a twitter username and the number of tweets to analyze.
-        #sys.argv[1]
-        #sys.argv[2]
 
     # OUTPUT: the program outputs the following:
 
@@ -31,6 +26,8 @@ import secrets
         # To determine the five most frequent, ties should be broken alphabetically, capitals before lowercase. (Check out Python stable sorting for a relatively easy way to handle this.)
 
     # The program should also save a CSV file of the 5 most frequent nouns in the analyzed tweets, called noun_data.csv. You'll use this in Part 4!
+
+    # SAVE CSV FILE NAME == 'noun_data.csv'
 
     # NOTES:
 
@@ -97,9 +94,14 @@ user_tweets = api.user_timeline(screen_name=username, count=num_tweets)
 
 # ////////// Total Tweet Text //////////
 total_tweets = []
+retweeted_list = []
+original_tweet_json = []
+
+retweeted_marker = "retweeted_status"
 
 for x in user_tweets:
     tweet_json = x._json # Entire json dict of the status
+
     retweet_count = x.retweet_count # Yes, the number of times a SINGLE tweet was retweeted
     favorite_count = x.favorite_count # Tells the number of times a SINGLE tweet was retweeted
     retweet_finder = x.retweeted # Tells whether the tweet was retweeted
@@ -107,35 +109,50 @@ for x in user_tweets:
     total_tweets.append(tweet_text)
     #print(tweet_text)
 
-#print(json.dumps(tweet_json, indent=4))
+    if retweeted_marker in tweet_json:
+        retweeted_list.append(tweet_text)
 
-# ////////// FINDING ORIGINAL TWEETS //////////
+    if retweeted_marker not in tweet_json:
+        original_tweet_json.append(tweet_json)
+
+
+    #print(json.dumps(original_tweet_json, indent=4))
+    #print(json.dumps(tweet_json, indent=4))
+
+#print(len(retweeted_list))
+#print(len(original_tweet_json))
+
+
+
+# ////////////////////////////////////////////////////////////
+# ////////// STEP 3 - FINDING ORIGINAL TWEET STATS //////////
+# //////////////////////////////////////////////////////////
 
 original_tweet_text = []
 fav_org_tweets = 0
 retweeted_org_tweets = 0
 
-# if len(retweeted) == 0:
-#     print(tweet_text)
 
-if "RT @" not in tweet_text[:3]:
-    #print(tweet_text)
+for x in original_tweet_json:
     original_tweet_text.append(tweet_text)
-    #print(favorite_count)
     fav_org_tweets = favorite_count + fav_org_tweets
 
     retweeted_org_tweets = retweet_count + retweeted_org_tweets
+
+#for x in favorite_count:
+#    fav_org_tweets.append(int(x))
+
+#print(fav_org_tweets)
+
 
 #print(len(original_tweet_text))
 #print(fav_org_tweets)
 #print(retweeted_org_tweets)
 
 
-# /////////////////////////////////////////////////////
-# ////////// STEP 3 - Sorting Through Tweets //////////
-# /////////////////////////////////////////////////////
-
-
+# /////////////////////////////////////////////////////////
+# ////////// STEP 4 - Sorting Through All Tweets //////////
+# /////////////////////////////////////////////////////////
 
 #print(len(total_tweets))
 text_str = "".join(str(x) for x in total_tweets) ## Now it's a string
@@ -146,9 +163,9 @@ tokenizer = nltk.word_tokenize(text_str) ## List of words, not letters
 #dictt = nltk.FreqDist(tokenizer)
 
 
-# ///////////////////////////////////////////
-# ////////// Removing "stop words" //////////
-# ///////////////////////////////////////////
+    # ///////////////////////////////////////////
+    # ////////// Removing "stop words" //////////
+    # ///////////////////////////////////////////
 
 real_words = []
 for z in tokenizer:
@@ -157,43 +174,41 @@ for z in tokenizer:
     #else:
         continue
 
-    word_counter = nltk.FreqDist(real_words)
-    #dictt = nltk.pos_tag(tokenizer)
+    #word_counter = nltk.FreqDist(real_words)
 
-
-# //////////////////////////////////////////////////////
-# ////////// Deleting Abbrevs from Words LIST //////////
-# //////////////////////////////////////////////////////
+    # //////////////////////////////////////////////////////
+    # ////////// Deleting Abbrevs from Words LIST //////////
+    # //////////////////////////////////////////////////////
 
 stop_words = ['RT','http','https']
 for stopper in list(real_words):
     if stopper in stop_words:
         real_words.remove(stopper)
 
-    tup_list = nltk.pos_tag(real_words) ## My LIST of unsorted word types
+    #tup_list = nltk.pos_tag(real_words) ## My LIST of unsorted word types
 
-del word_counter['RT']
-del word_counter['http']
-del word_counter['https']
+# del word_counter['RT']
+# del word_counter['http']
+# del word_counter['https']
 
 
 # ////////////////////////////////////////////
 # ////////// Sorting Types of Words //////////
 # ////////////////////////////////////////////
 
-nouns = []
-verbs = []
-adjectives = []
-
-
-
-for word,pos in tup_list:
-    if pos == 'NN':
-        nouns.append(word)
-    if pos == 'VB':
-        verbs.append(word)
-    if pos == 'JJ':
-        adjectives.append(word)
+# nouns = []
+# verbs = []
+# adjectives = []
+#
+#
+#
+# for word,pos in tup_list:
+#     if pos == 'NN':
+#         nouns.append(word)
+#     if pos == 'VB':
+#         verbs.append(word)
+#     if pos == 'JJ':
+#         adjectives.append(word)
 
 #print(nouns)
 #print(verbs)
@@ -252,10 +267,10 @@ top_a = sorted_adj[:5]
 
 sorted_nouns = sorted(noun_list, key = lambda x: x[1], reverse = True)
 top_n = sorted_nouns[:5]
-common_nouns = {}
 
-for x,y in top_n:
-    common_nouns[x]=y
+#common_nouns = {}
+#for x,y in top_n:
+#    common_nouns[x]=y
 
 #for x,y in common_nouns.items():
 #    print(x,y)
@@ -293,4 +308,4 @@ with open('noun_data.csv', 'w', newline='') as tweet_csv:
     file_writer.writerow(fieldname)
     for x in top_n:
         file_writer.writerow(x)
-    noun_data.csv.close()
+    tweet_csv.close()
