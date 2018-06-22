@@ -54,9 +54,6 @@ import secrets
         # TIMES FAVORITED (ORIGINAL TWEETS ONLY): 26
         # TIMES RETWEETED (ORIGINAL TWEETS ONLY): 18
 
-
-
-
     # SAMPLE CSV FILE OUTPUT inside a .csv file
 
         # Noun,Number
@@ -65,8 +62,6 @@ import secrets
         # students,5
         # Join,5
         # amp,5
-
-
 
 # ////////////////////////////////////////////
 # /////////////// Start Coding ///////////////
@@ -289,7 +284,7 @@ print("TIMES RETWEETED (ORIGINAL TWEETS ONLY): {}".format(retweeted_org_tweets))
 # ///////////////////////////////////////////////////////
 
 
-with open('twitter_results.csv', 'w', newline='') as tweet_csv:
+with open('noun_data.csv', 'w', newline='') as tweet_csv:
     header = (username,num_tweets)
     fieldname = ["Noun","Number"]
 
@@ -298,4 +293,4 @@ with open('twitter_results.csv', 'w', newline='') as tweet_csv:
     file_writer.writerow(fieldname)
     for x in top_n:
         file_writer.writerow(x)
-    tweet_csv.close()
+    noun_data.csv.close()

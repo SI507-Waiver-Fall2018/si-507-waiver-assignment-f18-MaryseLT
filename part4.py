@@ -35,7 +35,7 @@ count = [] # count
 # ////////// Open the CSV and Load to Tuple List //////////
 # /////////////////////////////////////////////////////////
 
-with open('twitter_results.csv') as f:
+with open('noun_data.csv.csv') as f:
     reader = csv.reader(f)
     next(reader) #skip username
     next(reader) #skip header
