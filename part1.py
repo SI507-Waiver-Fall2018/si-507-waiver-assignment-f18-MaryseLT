@@ -4,6 +4,7 @@ import nltk
 import json
 import sys
 
+import csv
 import secrets
 
 # /////////////////////////////////////////
@@ -24,7 +25,7 @@ import secrets
         # the five most frequent verbs that appear in the analyzed tweets
         # the five most frequent nouns that appear in the analyzed tweets
         # the five most frequent adjectives that appear in the analyzed tweets
-        # the number of original tweets (i.e., not retweets) == ##'include_rts'
+        # the number of original tweets (i.e., not retweets) ==                ##'include_rts=false'
         # the number of times that the original tweets in the analyzed set were favorited
         # the number of times that the original tweets in the analyzed set were retweeted by others
         # To determine the five most frequent, ties should be broken alphabetically, capitals before lowercase. (Check out Python stable sorting for a relatively easy way to handle this.)
@@ -53,6 +54,9 @@ import secrets
         # TIMES FAVORITED (ORIGINAL TWEETS ONLY): 26
         # TIMES RETWEETED (ORIGINAL TWEETS ONLY): 18
 
+
+
+
     # SAMPLE CSV FILE OUTPUT inside a .csv file
 
         # Noun,Number
@@ -62,10 +66,6 @@ import secrets
         # Join,5
         # amp,5
 
-
-# Part 2: Create a Simple Database application
-
-    # For part 2, you will create a program to access information in the Northwind database (included in the repository)
 
 
 # ////////////////////////////////////////////
@@ -93,36 +93,62 @@ auth.set_access_token(access_token, access_secret)
 api = tweepy.API(auth)
 
 user_tweets = api.user_timeline(screen_name=username, count=num_tweets)
+    #,include_rts='false')
+
+
+# ///////////////////////////////////////////////////
+# ////////// STEP 2 - Unpacking the ._json //////////
+# ///////////////////////////////////////////////////
+
+# ////////// Total Tweet Text //////////
+total_tweets = []
+
+for x in user_tweets:
+    tweet_json = x._json # Entire json dict of the status
+    retweet_count = x.retweet_count # Yes, the number of times a SINGLE tweet was retweeted
+    favorite_count = x.favorite_count # Tells the number of times a SINGLE tweet was retweeted
+    retweet_finder = x.retweeted # Tells whether the tweet was retweeted
+    tweet_text = x.text # Prints out just the text of the tweet
+    total_tweets.append(tweet_text)
+    #print(tweet_text)
+
+#print(json.dumps(tweet_json, indent=4))
+
+# ////////// FINDING ORIGINAL TWEETS //////////
+
+original_tweet_text = []
+fav_org_tweets = 0
+retweeted_org_tweets = 0
+
+# if len(retweeted) == 0:
+#     print(tweet_text)
+
+if "RT @" not in tweet_text[:3]:
+    #print(tweet_text)
+    original_tweet_text.append(tweet_text)
+    #print(favorite_count)
+    fav_org_tweets = favorite_count + fav_org_tweets
+
+    retweeted_org_tweets = retweet_count + retweeted_org_tweets
+
+#print(len(original_tweet_text))
+#print(fav_org_tweets)
+#print(retweeted_org_tweets)
 
 
 # /////////////////////////////////////////////////////
-# ////////// STEP 2 - Sorting Through Tweets //////////
-# /////////////////////////////////////////////////////
-the_tweets = []
-for tweet in user_tweets:
-    the_tweets.append(tweet.text.lower())
-
-    #print(tweet.text) ## Non list format (just text)
-    #print(the_tweets) ## List format (inside [])
-#print(type(the_tweets))
-
-
-
-
-# //////////////////////////////////////////////////////
-# ////////// STEP 3 - Sorting Through Cache ///////////
+# ////////// STEP 3 - Sorting Through Tweets //////////
 # /////////////////////////////////////////////////////
 
 
-#text_res = []
-#for abc in the_tweets:
-#    text_res.append(abc.get('text'))
 
-text_str = "".join(str(x) for x in the_tweets) ## Now it's a string
+#print(len(total_tweets))
+text_str = "".join(str(x) for x in total_tweets) ## Now it's a string
+#print(len(text_str))
 #print(type(text_str))
 tokenizer = nltk.word_tokenize(text_str) ## List of words, not letters
 #print(type(tokenizer))
-dictt = nltk.FreqDist(tokenizer)
+#dictt = nltk.FreqDist(tokenizer)
 
 
 # ///////////////////////////////////////////
@@ -138,9 +164,7 @@ for z in tokenizer:
 
     word_counter = nltk.FreqDist(real_words)
     #dictt = nltk.pos_tag(tokenizer)
-sorted_dict = sorted(word_counter.items(), key= lambda x: x[1], reverse = True) # List of tuples
 
-#print(sorted_dict)
 
 # //////////////////////////////////////////////////////
 # ////////// Deleting Abbrevs from Words LIST //////////
@@ -151,68 +175,113 @@ for stopper in list(real_words):
     if stopper in stop_words:
         real_words.remove(stopper)
 
+    tup_list = nltk.pos_tag(real_words) ## My LIST of unsorted word types
 
-    word_counter = nltk.FreqDist(real_words)
-#print(word_counter)
+del word_counter['RT']
+del word_counter['http']
+del word_counter['https']
 
-tup_list = nltk.pos_tag(real_words) ## My LIST of unsorted word types
+
+# ////////////////////////////////////////////
+# ////////// Sorting Types of Words //////////
+# ////////////////////////////////////////////
 
 nouns = []
+verbs = []
+adjectives = []
+
+
 
 for word,pos in tup_list:
     if pos == 'NN':
         nouns.append(word)
-print(nouns)
+    if pos == 'VB':
+        verbs.append(word)
+    if pos == 'JJ':
+        adjectives.append(word)
 
-noun_count = []
-for word,freq in sorted_dict:
-    if word in nouns:
-        #noun_count.append(word)
+#print(nouns)
+#print(verbs)
+#print(adjectives)
 
-#print(noun_count)
 
+tagged = nltk.pos_tag(real_words) # tagged variable
+
+
+# ////////// NOUNS //////////
+
+the_nouns = [word for word, pos in tagged if (pos == 'NN')]
+#print(the_nouns)
+num_nouns = nltk.FreqDist(the_nouns)
+#print(num_nouns.items())
+
+noun_list = []
+noun_count = num_nouns.items()
+for x in noun_count:
+    noun_list.append(x)
+
+
+# ////////// VERBS //////////
+
+the_verbs = [word for word, pos in tagged if (pos == 'VB')]
+#print(the_verbs)
+
+num_verbs = nltk.FreqDist(the_verbs)
+#print(num_verbs.items())
+
+verb_list = []
+verb_count = num_verbs.items()
+for x in verb_count:
+    verb_list.append(x)
+
+# ////////// ADJECTIVES //////////
+
+the_adj = [word for word, pos in tagged if (pos == 'JJ')]
+#print(the_adj)
+
+num_adj = nltk.FreqDist(the_adj)
+#print(num_adj.items())
+
+adj_list = []
+adj_count = num_adj.items()
+for x in adj_count:
+    adj_list.append(x)
 
 
 # /////////////////////////////////////////
 # ////////// Most Frequent Words //////////
 # /////////////////////////////////////////
 
-sorted_list = sorted(tup_list, key = lambda x: x[1], reverse = False)
-#print(sorted_list)
+sorted_adj = sorted(adj_list, key = lambda x: x[1], reverse = True)
+top_a = sorted_adj[:5]
+
+sorted_nouns = sorted(noun_list, key = lambda x: x[1], reverse = True)
+top_n = sorted_nouns[:5]
+common_nouns = {}
+
+for x,y in top_n:
+    common_nouns[x]=y
+
+#for x,y in common_nouns.items():
+#    print(x,y)
 
 
-# sorted_dict = sorted(dictt.items(), key= lambda x: x[1], reverse = True)
-# final_sort = sorted_dict[:5]
-
-#print("USER: {}\nTWEETS ANALYZED: {}\nThe 5 Most Frequent Words: {}\n".format(username, num_tweets, final_sort))
-
-# ////////////////////////////////////
-# ////////// Types of Words //////////
-# ////////////////////////////////////
-
-
-#for word,variations in sorted(word_type):
-#    print(word,variations)
-
-        # a "verb" is anything that is tagged VB*
-        # a "noun" is anything that is tagged NN*
-        # an "adjective" is anything that is tagged JJ*
-
-
+sorted_verbs = sorted(verb_list, key = lambda x: x[1], reverse = True)
+top_v = sorted_verbs[:5]
 
 
 # ////////////////////////////////////////////////////
 # ////////// STEP 4 - Printing the Results ///////////
 # ////////////////////////////////////////////////////
 
-#print("USER: " + username)
-#print("TWEETS ANALYZED" + num_tweets)
-#print("VERBS: {}{()}, {}{()}, {}{()}, {}{()}, {}{()}".format(?))
-#print("NOUNS: {}{()}, {}{()}, {}{()}, {}{()}, {}{()}".format(?))
-#print("ADJECTIVES: {}{()}, {}{()}, {}{()}, {}{()}, {}{()}".format(?))
-#print("ORIGINAL TWEETS: {}".format(?))
-#print("TIMES FAVORITED (ORIGINAL TWEETS ONLY): {}".format(?))
-#print("TIMES RETWEETED (ORIGINAL TWEETS ONLY): {}".format(?))
+print("USER: " + username)
+print("TWEETS ANALYZED: " + num_tweets)
+print("VERBS: {}({}), {}({}), {}({}), {}({}), {}({})".format(top_v[0][0], top_v[0][1], top_v[1][0], top_v[1][1], top_v[2][0], top_v[2][1], top_v[3][0], top_v[3][1], top_v[4][0], top_v[4][1]))
+print("NOUNS: {}({}), {}({}), {}({}), {}({}), {}({})".format(top_n[0][0], top_n[0][1], top_n[1][0], top_n[1][1], top_n[2][0], top_n[2][1], top_n[3][0], top_n[3][1], top_n[4][0], top_n[4][1]))
+print("ADJECTIVES: {}({}), {}({}), {}({}), {}({}), {}({})".format(top_a[0][0], top_a[0][1], top_a[1][0], top_a[1][1], top_a[2][0], top_a[2][1], top_a[3][0], top_a[3][1], top_a[4][0], top_a[4][1]))
+print("ORIGINAL TWEETS: {}".format(len(original_tweet_text)))
+print("TIMES FAVORITED (ORIGINAL TWEETS ONLY): {}".format(fav_org_tweets))
+print("TIMES RETWEETED (ORIGINAL TWEETS ONLY): {}".format(retweeted_org_tweets))
 
 
 # ///////////////////////////////////////////////////////
@@ -220,23 +289,13 @@ sorted_list = sorted(tup_list, key = lambda x: x[1], reverse = False)
 # ///////////////////////////////////////////////////////
 
 
-    # SAMPLE CSV FILE OUTPUT inside a .csv file
+with open('twitter_results.csv', 'w', newline='') as tweet_csv:
+    header = (username,num_tweets)
+    fieldname = ["Noun","Number"]
 
-        # Noun,Number
-        # umsi,8
-        # UMSI,8
-        # students,5
-        # Join,5
-        # amp,5
-
-#tweet_csv = open('twitter_results.csv', 'w', newline='')
-#file_writer = csv.writer(tweet_csv)
-#for tweet in #<analyzed list variable>:
-#    file_writer.writerow(Noun,Number)
-#    file_writer.writerow(username,num_tweets)
-#    file_writer.writerow(<var>,<count>)
-#tweet_csv.close()
-
-# //////////////////////////////////////////////////////////
-# ////////// Part 2 - Simple Database Application //////////
-# //////////////////////////////////////////////////////////
+    file_writer = csv.writer(tweet_csv, delimiter = ',')
+    file_writer.writerow(header)
+    file_writer.writerow(fieldname)
+    for x in top_n:
+        file_writer.writerow(x)
+    tweet_csv.close()
