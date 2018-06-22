@@ -35,7 +35,7 @@ count = [] # count
 # ////////// Open the CSV and Load to Tuple List //////////
 # /////////////////////////////////////////////////////////
 
-with open('noun_data.csv.csv') as f:
+with open('noun_data.csv') as f:
     reader = csv.reader(f)
     next(reader) #skip username
     next(reader) #skip header
@@ -70,4 +70,4 @@ layout = go.Layout(title="Most Common Tweeted Nouns", xaxis=dict(title='NOUNS'),
 # ////////////////////////////////////////
 
 fig = go.Figure(data=data, layout=layout)
-py.iplot(fig, filename='part4_viz_image.png')
+py.iplot(fig, filename='part4_viz_image')
