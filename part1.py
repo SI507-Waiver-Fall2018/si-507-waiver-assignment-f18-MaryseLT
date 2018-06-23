@@ -92,7 +92,7 @@ user_tweets = api.user_timeline(screen_name=username, count=num_tweets)
 # ////////// STEP 2 - Unpacking the ._json //////////
 # ///////////////////////////////////////////////////
 
-# ////////// Total Tweet Text //////////
+# ---------- Total Tweet Text ----------
 total_tweets = []
 retweeted_list = []
 original_tweet_json = []
