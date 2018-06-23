@@ -1,39 +1,52 @@
-# Imports -- you may add others but do not need to
+
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+# \\\\\ Maryse Elizabeth Lundering-Timpano : MaryseLT [6379 5232] \\\\\
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            # \\\\\ SI 507 Fall 2018 Waiver (4/4) \\\\\
+            # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+# ==================================================================
+# ========== Instructions - PART 4: Visualize PART 1 Data ==========
+# ==================================================================
+
+    # FILENAME: part4.py
+
+    # Write code that uses plot.ly to create:
+        # a BAR chart
+        # representing the data you got in PART 1
+        # about the MOST COMMON NOUNS ONLY
+        # in the TWITTER data.
+            #More information about using plot.ly for bar chart creation can be found here: https://plot.ly/python/bar-charts/
+
+    # You should create, as a result of part4.py:
+        # an image file of the bar chart:
+
+            ### part4_viz_image.png. [<- == filename?]
+
+        # ANY BAR CHART representing your data about nouns is ACCEPTABLE.
+
+        # And opening / using the CSV file you created earlier with noun data from tweets part1.py
+
+            ### part1.py csv file == noun_data.csv
+
+
+# /////////////////////////////////////////////
+# ////////// STEP 1 - Import Library //////////
+# /////////////////////////////////////////////
+
+    # Imports -- you may add others but do not need to
+
 import plotly.plotly as py
 import plotly.graph_objs as go
 
-import csv
+import csv # I added this library.
 
-# /////////////////////////////////////////
-# ////////// README Instructions //////////
-# /////////////////////////////////////////
-
-# Part 4: Visualize some data
-# FILENAME: part4.py
-
-    # Write code that uses plot.ly to create a bar chart representing the data you got in Part 1 about the most common nouns only in the Twitter data. More information about using plot.ly for bar chart creation can be found here: https://plot.ly/python/bar-charts/
-
-    # You should use part4.py to do so.
-
-    # You should create, as a result of part4.py, an image file of the bar chart: part4_viz_image.png.
-
-    # Any bar chart representing your data about nouns is acceptable.
-
-# ////////////////////////////////////////////
-# /////////////// Start Coding ///////////////
-# ////////////////////////////////////////////
-
-# Code here should involve creation of the bar chart as specified in instructions
-# And opening / using the CSV file you created earlier with noun data from tweets
-
+# ////////////////////////////////////////////////////////////////
+# ////////// STEP 2 - Open the CSV & Load to Tuple List //////////
+# ////////////////////////////////////////////////////////////////
 
 data = [] # List of noun,count Tuples
-nouns = [] # nouns
-count = [] # count
-
-# /////////////////////////////////////////////////////////
-# ////////// Open the CSV and Load to Tuple List //////////
-# /////////////////////////////////////////////////////////
 
 with open('noun_data.csv') as f:
     reader = csv.reader(f)
@@ -44,30 +57,38 @@ with open('noun_data.csv') as f:
 
 #print(data)
 
-# ////////////////////////////////////////////////////////
-# ////////// Sort Tuples to Noun & Count Lists  //////////
-# ////////////////////////////////////////////////////////
+# /////////////////////////////////////////////////////////////////
+# ////////// STEP 3 - Sort Tuples to Noun & Count Lists  //////////
+# /////////////////////////////////////////////////////////////////
+
+nouns = [] # List of Only NOUNS
+count = [] # List of Only COUNT
 
 for row in data:
     nouns.append(row[0])
     count.append(row[1])
 
+#print(nouns)
+#print(count)
 
-#print(x)
-#print(y)
+# ///////////////////////////////////////////////////////////////
+# ////////// STEP 4 - Put Variables into Plotly Format //////////
+# ///////////////////////////////////////////////////////////////
 
-# ///////////////////////////////////////////////////////
-# ////////// Put Variables into Plotly Format  //////////
-# ///////////////////////////////////////////////////////
+# X axis == nouns
+# Y axis == count
 
 data = [go.Bar(x=nouns,y=count)]
 
 layout = go.Layout(title="Most Common Tweeted Nouns", xaxis=dict(title='NOUNS'), yaxis=dict(title='Count'))
 
 
-# ////////////////////////////////////////
-# ////////// KEEP AT THE BOTTOM //////////
-# ////////////////////////////////////////
+# ---------------------------------------------
+# ---------- KEEP AT THE VERY BOTTOM ----------
+# ---------------------------------------------
 
 fig = go.Figure(data=data, layout=layout)
+    # First Param - Instructions
+
 py.iplot(fig, filename='part4_viz_image')
+    # Only Accepts 2 Params: Instructions Variable & Filename for the Chart

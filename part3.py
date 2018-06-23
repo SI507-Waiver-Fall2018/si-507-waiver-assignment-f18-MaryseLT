@@ -1,29 +1,37 @@
-# these should be the only imports you need
+
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+# \\\\\ Maryse Elizabeth Lundering-Timpano : MaryseLT [6379 5232] \\\\\
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            # \\\\\ SI 507 Fall 2018 Waiver (3/4) \\\\\
+            # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+# ======================================================================
+# ========== Instructions - PART 3: Scrape the Michigan Daily ==========
+# ======================================================================
+
+    # FILENAME: part3.py
+    # USAGE SHOULD BE: python3 part3.py
+
+    # In part 3, you will:
+
+        # 1. use Beautiful Soup to scrape the MOST READ stories from the Michigan Daily site (http://michigandaily.com),
+
+        # 2. and will crawl ONE LEVEL DEEPER to find the AUTHOR of each Most Read story.
+
+
+# /////////////////////////////////////////////
+# ////////// STEP 1 - Import Library //////////
+# /////////////////////////////////////////////
+
+    # these should be the only imports you need
 
 import requests
 from bs4 import BeautifulSoup
 
-
-# /////////////////////////////////////////
-# ////////// README Instructions //////////
-# /////////////////////////////////////////
-
-# Part 3: Scrape the Michigan Daily
-# FILENAME: part3.py
-
-    # In part 3, you will use Beautiful Soup to scrape the Most Read stories from the Michigan Daily site (http://michigandaily.com), and will crawl one level deeper to find the author of each Most Read story.
-
-
-# ////////////////////////////////////////////
-# /////////////// Start Coding ///////////////
-# ////////////////////////////////////////////
-
-# write your code here
-# usage should be python3 part3.py
-
-# ////////////////////////////////////////////
-# ////////// Scraping the Home Page //////////
-# ////////////////////////////////////////////
+# /////////////////////////////////////////////////////
+# ////////// STEP 2 - Scraping the Home Page //////////
+# /////////////////////////////////////////////////////
 
 baseurl = 'https://www.michigandaily.com'
 html = requests.get('https://www.michigandaily.com/').text
@@ -33,72 +41,54 @@ soup = BeautifulSoup(html, 'html.parser')
 searching_div = soup.find(id='mini-panel-right_sidebar_standard')
 #print(searching_div)
 
-most_read = searching_div.find_all('li') # Most Read Headlines & Urls
+most_read = searching_div.find_all('li') # Most Read HTML Headlines & Urls
 
-headlines = []
+headlines = [] # List of Home Page Most Read Headlines -- Keep Above Loop
 for h in most_read:
+    # print(h.text) # Just Headline Text
     headlines.append(h.text)
-#    #print(h.text) # Just Headline Text
 
-most_read_urls = []
+most_read_urls = [] # List of Individual Page URLS -- Keep Above Loop
 for y in most_read:
-    most_read_urls.append(baseurl + y.a['href']) # Url to each headline
+    most_read_urls.append(baseurl + y.a['href']) # URL to each headline
 
 #print(most_read_urls)
 
-# ////////////////////////////////////////////////
-# ////////// Searching Individual Pages //////////
-# ////////////////////////////////////////////////
+# //////////////////////////////////////////////////////
+# ////////// STEP 3 - Scrape Individual Pages //////////
+# //////////////////////////////////////////////////////
 
-headline_authors = {} # Healines: Authors Dict; Keep Above Loop
-author_list = [] # Keep Above loop
+author_list = [] # List of Individual Page Authors -- Keep Above loop
 
 for abc in most_read_urls:
-    url = '{}'.format(abc)
+    url = '{}'.format(abc) # Variable that Holds a URL Each Loop
     #print(url)
-    each_story = requests.get(url).text # Making Each Page Request
+    each_story = requests.get(url).text # Making A Page Request
     story_soup = BeautifulSoup(each_story, 'html.parser')
 
-
-    # ///////////////////////////////////
-    # ////////// Headline Text //////////
-    # ///////////////////////////////////
-
-    #headline_section = story_soup.find(class_='tmdleft') # Overall
-
-    #headline_text = headline_section.find('h2') # Specific Section
-    ##print(headline_text)
-
-    #if len(headline_text) == 0: # In case of old HTML
-    #    headline = "The Most Read headline html format has changed dramatically over the years, and in this case my scraping code can't find it.\n"
-
-    #else:
-    #    element in headline_text: # If current HTML
-        ##headline = element.text
-    #    print(element)
-
-    ##print(headline)
-
-
-    # /////////////////////////////////
-    # ////////// Author Text //////////
-    # /////////////////////////////////
-
+    # ----------------------------------------------------------
+    # ----- Finding the Author : STAY INSIDE  REQUEST LOOP -----
+    # ----------------------------------------------------------
 
     author_section = story_soup.find(class_='byline')
 
-    if author_section is not None: # If current HTML
-        author_text = author_section.find('a')
-        author = author_text.text
+    if author_section is not None: # If Up-to-Date HTML
+        author_text = author_section.find('a') # Author HTML
+        author = author_text.text # Author Text
         author_list.append(author)
 
     else:
-        if author_section is None: # If old HTML
+        if author_section is None: # If Out-Dated HTML
             author = "The Michigan Daily HTML format has changed dramatically over the years, and in this case my scraping code can't find an author."
             author_list.append(author)
 
-
     #print(author)
+
+# /////////////////////////////////////////////
+# ////////// STEP 4 - Format & Print //////////
+# /////////////////////////////////////////////
+
+headline_authors = {} # Dict of [Headlines:Authors] -- Keep Above Loop
 
 for x in range(len(headlines)):
     headline_authors[headlines[x]] = author_list[x]

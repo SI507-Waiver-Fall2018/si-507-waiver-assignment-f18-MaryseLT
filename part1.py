@@ -1,33 +1,42 @@
-# these should be the only imports you need
-import tweepy
-import nltk
-import json
-import sys
 
-import csv
-import secrets # my py file containing my twitter access requirements
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+# \\\\\ Maryse Elizabeth Lundering-Timpano : MaryseLT [6379 5232] \\\\\
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            # \\\\\ SI 507 Fall 2018 Waiver (2/4) \\\\\
+            # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
+# =================================================================
+# ========== Instructions - PART 1: Analyze Twitter Data ==========
+# =================================================================
 
-# Part 1: Create a program to analyze the twitter timeline of a selected user.
     # FILENAME: part1.py
+    # USAGE SHOULD BE:  python3 part1.py <username> <num_tweets>
 
-    # ARGUMENTS: the program takes two arguments--a twitter username and the number of tweets to analyze.
+    # Part 1: Analyze the twitter timeline of a selected user.
 
-    # OUTPUT: the program outputs the following:
+    # Program Output [printing]:
+        # user name
+        # Total number of tweets analyzed
+        # 5 most frequent VERBS in the analyzed tweets
+        # 5 most frequent NOUNS in the analyzed tweets
+        # 5 most frequent ADJECTIVES in the analyzed tweets
+        # How many ORIGINAL tweets (i.e., not retweets) there are:
+            # How many times the ORIGINAL tweets were FAVORITED
+            # How many times the ORIGINAL tweets were RETWEETED by others
 
-        # the user name  == ##'screen_name'
-        # the number of tweets analyzed  == ##'count'
-        # the five most frequent verbs that appear in the analyzed tweets
-        # the five most frequent nouns that appear in the analyzed tweets
-        # the five most frequent adjectives that appear in the analyzed tweets
-        # the number of original tweets (i.e., not retweets) ==                ##'include_rts=false'
-        # the number of times that the original tweets in the analyzed set were favorited
-        # the number of times that the original tweets in the analyzed set were retweeted by others
-        # To determine the five most frequent, ties should be broken alphabetically, capitals before lowercase. (Check out Python stable sorting for a relatively easy way to handle this.)
+    # Saving Results ['noun_data.csv']:
+        # The program should also save a CSV file of:
+            # the 5 most frequent nouns in the analyzed tweets,
+            # called noun_data.csv.
+            # You'll use this in Part 4!
 
-    # The program should also save a CSV file of the 5 most frequent nouns in the analyzed tweets, called noun_data.csv. You'll use this in Part 4!
+            ### SAVE CSV FILE NAME == 'noun_data.csv' ###
 
-    # SAVE CSV FILE NAME == 'noun_data.csv'
+    # Determining the 5 most frequent:
+        # ties should be broken alphabetically,
+        # capitals before lowercase.
+            ## (Check out Python stable sorting for a relatively easy way to handle this.)
 
     # NOTES:
 
@@ -60,24 +69,62 @@ import secrets # my py file containing my twitter access requirements
         # Join,5
         # amp,5
 
-# ////////////////////////////////////////////
-# /////////////// Start Coding ///////////////
-# ////////////////////////////////////////////
 
-# write your code here
-# usage should be python3 part1.py <username> <num_tweets>
+
+
+# /////////////////////////////////////////////
+# ////////// STEP 1 - Import Library //////////
+# /////////////////////////////////////////////
+
+    # these should be the only imports you need
+
+import tweepy
+import nltk
+import json
+import sys
+
+import csv # I added this Library.
+import secrets # My py File with My Twitter Access
+import importlib # If Grader Doesn't Have 'secrets.py'
+
+# ////////////////////////////////////////////////////////
+# ////////// STEP 2 - Establish Usage Variables //////////
+# ////////////////////////////////////////////////////////
 
 username = sys.argv[1]
 num_tweets = sys.argv[2]
 
-# ////////////////////////////////////////////////
-# ////////// STEP 1 - Setting Up Access //////////
-# ////////////////////////////////////////////////
+# ////////////////////////////////////////////////////////
+# ////////// STEP 3 - Setting Up Twitter Access //////////
+# ////////////////////////////////////////////////////////
 
 consumer_key = secrets.CONSUMER_KEY
 consumer_secret = secrets.CONSUMER_SECRET
 access_token = secrets.ACCESS_KEY
 access_secret = secrets.ACCESS_SECRET
+
+
+# What if grader doesn't have a 'secrets.py' file?
+    # Do an 'if/else' w/ my personal creditals?
+
+        ## REFRESH MY TWITTER CREDS IN NEAR FUTURE ##
+
+# secrets_file_finder = importlib.util.find_spec("secrets")
+# found_secrets_file = secrets_file_finder is not None
+#
+# if found_secrets_file is True:
+#     print("importlib worked")
+#     consumer_key = secrets.CONSUMER_KEY
+#     consumer_secret = secrets.CONSUMER_SECRET
+#     access_token = secrets.ACCESS_KEY
+#     access_secret = secrets.ACCESS_SECRET
+# else:
+#     print("secrets.py IS NOT PRESENT")
+#     consumer_key = 'BosvDb6AvQeIqPbpL3WVin0OC'
+#     consumer_secret = 'm2S0bWNQvNfqMMwkLLrqoOekLxIWZhb2dPMHnql6CzIWA3Dgf7'
+#     access_token = '959132180646711296-bCywY8G6KkZ83e1XdGQYtKaXXqoXo0d'
+#     access_secret = 'fB6hV2zQfg9edGThBUgVwonTUqxgF59Od1Ts0lGyFeXkF'
+
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
@@ -85,219 +132,183 @@ auth.set_access_token(access_token, access_secret)
 api = tweepy.API(auth)
 
 user_tweets = api.user_timeline(screen_name=username, count=num_tweets)
-    #,include_rts='false')
 
 
-# ///////////////////////////////////////////////////
-# ////////// STEP 2 - Unpacking the ._json //////////
-# ///////////////////////////////////////////////////
-
-# ---------- Total Tweet Text ----------
-total_tweets = []
-retweeted_list = []
-original_tweet_json = []
+# ////////////////////////////////////////////////////////
+# ///// STEP 4 - Unpack the <user_tweets> Dictionary /////
+# ////////////////////////////////////////////////////////
 
 retweeted_marker = "retweeted_status"
 
+total_tweets = [] # List of ALL Tweet TEXT -- Keep Above Loop
+
+original_tweet_json = [] # List of ORIGINAL Tweet JSON -- Keep Above Loop
+
+original_tweet_favs = []
+
+original_retweet_count = []
+
+#retweeted_list = [] # List of RETWEETED Tweet TEXT -- Keep Above Loop
+    ## Only Used to Check Total LEN vs Sum of Both Types Lists
+
 for x in user_tweets:
-    tweet_json = x._json # Entire json dict of the status
+    tweet_json = x._json # Entire JSON Status Dictionary
 
-    retweet_count = x.retweet_count # Yes, the number of times a SINGLE tweet was retweeted
-    favorite_count = x.favorite_count # Tells the number of times a SINGLE tweet was retweeted
-    retweet_finder = x.retweeted # Tells whether the tweet was retweeted
-    tweet_text = x.text # Prints out just the text of the tweet
+    tweet_text = x.text # Just the Tweet TEXT
+
     total_tweets.append(tweet_text)
-    #print(tweet_text)
 
-    if retweeted_marker in tweet_json:
-        retweeted_list.append(tweet_text)
+    retweet_count = x.retweet_count # Retweets PER Tweet
 
-    if retweeted_marker not in tweet_json:
+    favorite_count = x.favorite_count # Favorited PER Tweet
+
+    # ---------------------------------------------------------------
+    # ----- STEP 4.1 - Sort Original Tweet JSON -- KEEP IN LOOP -----
+    # ---------------------------------------------------------------
+
+    #if retweeted_marker in tweet_json: # If Tweet == Retweeted
+    #    retweeted_list.append(tweet_text)
+        ## Only Used to Check Total LEN vs Sum of Both Types Lists
+
+    if retweeted_marker not in tweet_json: # If Tweet == Original
         original_tweet_json.append(tweet_json)
+        original_tweet_favs.append(favorite_count)
+        original_retweet_count.append(retweet_count)
 
-
+    #print(tweet_text)
     #print(json.dumps(original_tweet_json, indent=4))
     #print(json.dumps(tweet_json, indent=4))
 
-#print(len(retweeted_list))
-#print(len(original_tweet_json))
 
+# /////////////////////////////////////////////////////
+# ///// STEP 5 - Find <original_tweet_json> Stats /////
+# /////////////////////////////////////////////////////
+        # -----------------------------------
+        # ----- NOTE: Needed for STEP 8 -----
+        # -----------------------------------
 
-
-# ////////////////////////////////////////////////////////////
-# ////////// STEP 3 - FINDING ORIGINAL TWEET STATS //////////
-# //////////////////////////////////////////////////////////
+fav_org_tweets = sum(original_tweet_favs)
+retweeted_org_tweets = sum(original_retweet_count)
 
 original_tweet_text = []
-fav_org_tweets = 0
-retweeted_org_tweets = 0
-
-
 for x in original_tweet_json:
     original_tweet_text.append(tweet_text)
-    fav_org_tweets = favorite_count + fav_org_tweets
-
-    retweeted_org_tweets = retweet_count + retweeted_org_tweets
-
-#for x in favorite_count:
-#    fav_org_tweets.append(int(x))
-
-#print(fav_org_tweets)
 
 
-#print(len(original_tweet_text))
-#print(fav_org_tweets)
-#print(retweeted_org_tweets)
+# //////////////////////////////////////////////////////////
+# ////////// STEP 6 - Sort Through <total_tweets> //////////
+# //////////////////////////////////////////////////////////
 
+text_str = "".join(str(x) for x in total_tweets)
+#print(type(text_str)) ## type == STRING
 
-# /////////////////////////////////////////////////////////
-# ////////// STEP 4 - Sorting Through All Tweets //////////
-# /////////////////////////////////////////////////////////
+tokenizer = nltk.word_tokenize(text_str)
+#print(type(tokenizer)) ## type == LIST of WORDS
 
-#print(len(total_tweets))
-text_str = "".join(str(x) for x in total_tweets) ## Now it's a string
-#print(len(text_str))
-#print(type(text_str))
-tokenizer = nltk.word_tokenize(text_str) ## List of words, not letters
-#print(type(tokenizer))
-#dictt = nltk.FreqDist(tokenizer)
+# ------------------------------------------------------------
+# ----- STEP 6.1 - Remove "stop words" from <tokenizer> -----
+# ------------------------------------------------------------
 
-
-    # ///////////////////////////////////////////
-    # ////////// Removing "stop words" //////////
-    # ///////////////////////////////////////////
-
-real_words = []
+real_words = [] ## Only list of "REAL WORDS"
 for z in tokenizer:
-    if z.isalpha():
+    if z.isalpha(): ## If char[0] start w/ A-Z or a-z
         real_words.append(z)
     #else:
-        continue
+        continue ## Don't stop the loop for non-alphas[0]
 
-    #word_counter = nltk.FreqDist(real_words)
-
-    # //////////////////////////////////////////////////////
-    # ////////// Deleting Abbrevs from Words LIST //////////
-    # //////////////////////////////////////////////////////
+# -------------------------------------------------------
+# ----- STEP 6.2 - Delete Abbrevs from <real_words> -----
+# -------------------------------------------------------
 
 stop_words = ['RT','http','https']
 for stopper in list(real_words):
     if stopper in stop_words:
         real_words.remove(stopper)
 
-    #tup_list = nltk.pos_tag(real_words) ## My LIST of unsorted word types
 
-# del word_counter['RT']
-# del word_counter['http']
-# del word_counter['https']
+# //////////////////////////////////////////////////////////////
+# ///// STEP 7 - Sort Word & Count Types from <real_words> /////
+# //////////////////////////////////////////////////////////////
 
+type_tagger = nltk.pos_tag(real_words) # Word Type Sorter Variable
 
-# ////////////////////////////////////////////
-# ////////// Sorting Types of Words //////////
-# ////////////////////////////////////////////
+# ------------------------------------------------------------
+# ----- STEP 7.1 - Sort NOUNS & Count from <type_tagger> -----
+# ------------------------------------------------------------
 
-# nouns = []
-# verbs = []
-# adjectives = []
-#
-#
-#
-# for word,pos in tup_list:
-#     if pos == 'NN':
-#         nouns.append(word)
-#     if pos == 'VB':
-#         verbs.append(word)
-#     if pos == 'JJ':
-#         adjectives.append(word)
+the_nouns = [word for word, pos in type_tagger if (pos == 'NN')]
+#print(the_nouns) ## LIST of Words Deemed to be Nouns
 
-#print(nouns)
-#print(verbs)
-#print(adjectives)
-
-
-tagged = nltk.pos_tag(real_words) # tagged variable
-
-
-# ////////// NOUNS //////////
-
-the_nouns = [word for word, pos in tagged if (pos == 'NN')]
-#print(the_nouns)
 num_nouns = nltk.FreqDist(the_nouns)
-#print(num_nouns.items())
+#print(num_nouns.items()) ## Finds Total of Each Word
 
-noun_list = []
 noun_count = num_nouns.items()
+
+noun_list = [] ## List of Tuples
 for x in noun_count:
     noun_list.append(x)
-
-
-# ////////// VERBS //////////
-
-the_verbs = [word for word, pos in tagged if (pos == 'VB')]
-#print(the_verbs)
-
-num_verbs = nltk.FreqDist(the_verbs)
-#print(num_verbs.items())
-
-verb_list = []
-verb_count = num_verbs.items()
-for x in verb_count:
-    verb_list.append(x)
-
-# ////////// ADJECTIVES //////////
-
-the_adj = [word for word, pos in tagged if (pos == 'JJ')]
-#print(the_adj)
-
-num_adj = nltk.FreqDist(the_adj)
-#print(num_adj.items())
-
-adj_list = []
-adj_count = num_adj.items()
-for x in adj_count:
-    adj_list.append(x)
-
-
-# /////////////////////////////////////////
-# ////////// Most Frequent Words //////////
-# /////////////////////////////////////////
-
-sorted_adj = sorted(adj_list, key = lambda x: x[1], reverse = True)
-top_a = sorted_adj[:5]
 
 sorted_nouns = sorted(noun_list, key = lambda x: x[1], reverse = True)
 top_n = sorted_nouns[:5]
 
-#common_nouns = {}
-#for x,y in top_n:
-#    common_nouns[x]=y
+# ------------------------------------------------------------
+# ----- STEP 7.2 - Sort VERBS & Count from <type_tagger> -----
+# ------------------------------------------------------------
 
-#for x,y in common_nouns.items():
-#    print(x,y)
+the_verbs = [word for word, pos in type_tagger if (pos == 'VB')]
+#print(the_verbs) ## LIST of Words Deemed to be Verbs
 
+num_verbs = nltk.FreqDist(the_verbs)
+#print(num_verbs.items()) ## Finds Total of Each Word
+
+verb_count = num_verbs.items()
+
+verb_list = [] ## List of Tuples
+for x in verb_count:
+    verb_list.append(x)
 
 sorted_verbs = sorted(verb_list, key = lambda x: x[1], reverse = True)
 top_v = sorted_verbs[:5]
 
+# -----------------------------------------------------------------
+# ----- STEP 7.3 - Sort ADJECTIVES & Count from <type_tagger> -----
+# -----------------------------------------------------------------
 
-# ////////////////////////////////////////////////////
-# ////////// STEP 4 - Printing the Results ///////////
-# ////////////////////////////////////////////////////
+the_adj = [word for word, pos in type_tagger if (pos == 'JJ')]
+#print(the_adj) ## LIST of Words Deemed to be Adjectives
 
-print("USER: " + username)
+num_adj = nltk.FreqDist(the_adj)
+#print(num_adj.items()) ## Finds Total of Each Word
+
+adj_count = num_adj.items()
+
+adj_list = [] ## List of Tuples
+for x in adj_count:
+    adj_list.append(x)
+
+sorted_adj = sorted(adj_list, key = lambda x: x[1], reverse = True)
+top_a = sorted_adj[:5]
+
+# /////////////////////////////////////////////////
+# ////////// STEP 8 - Print the Results ///////////
+# /////////////////////////////////////////////////
+
+print("\nUSER: " + username)
 print("TWEETS ANALYZED: " + num_tweets)
 print("VERBS: {}({}), {}({}), {}({}), {}({}), {}({})".format(top_v[0][0], top_v[0][1], top_v[1][0], top_v[1][1], top_v[2][0], top_v[2][1], top_v[3][0], top_v[3][1], top_v[4][0], top_v[4][1]))
 print("NOUNS: {}({}), {}({}), {}({}), {}({}), {}({})".format(top_n[0][0], top_n[0][1], top_n[1][0], top_n[1][1], top_n[2][0], top_n[2][1], top_n[3][0], top_n[3][1], top_n[4][0], top_n[4][1]))
 print("ADJECTIVES: {}({}), {}({}), {}({}), {}({}), {}({})".format(top_a[0][0], top_a[0][1], top_a[1][0], top_a[1][1], top_a[2][0], top_a[2][1], top_a[3][0], top_a[3][1], top_a[4][0], top_a[4][1]))
 print("ORIGINAL TWEETS: {}".format(len(original_tweet_text)))
 print("TIMES FAVORITED (ORIGINAL TWEETS ONLY): {}".format(fav_org_tweets))
-print("TIMES RETWEETED (ORIGINAL TWEETS ONLY): {}".format(retweeted_org_tweets))
+print("TIMES RETWEETED (ORIGINAL TWEETS ONLY): {}\n".format(retweeted_org_tweets))
 
 
-# ///////////////////////////////////////////////////////
-# ////////// STEP 5 - Saving Results in a CSV ///////////
-# ///////////////////////////////////////////////////////
-
+# ///////////////////////////////////////////////////////////
+# ////////// STEP 9 - Save Nouns to noun_data.csv ///////////
+# ///////////////////////////////////////////////////////////
+    # ----------------------------------------------------
+    # ----- NOTE: FILE MUST BE CALLED 'noun_data.csv'-----
+    # ----------------------------------------------------
 
 with open('noun_data.csv', 'w', newline='') as tweet_csv:
     header = (username,num_tweets)
