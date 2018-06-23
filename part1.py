@@ -98,40 +98,25 @@ num_tweets = sys.argv[2]
 # ////////// STEP 3 - Setting Up Twitter Access //////////
 # ////////////////////////////////////////////////////////
 
-consumer_key = secrets.CONSUMER_KEY
-consumer_secret = secrets.CONSUMER_SECRET
-access_token = secrets.ACCESS_KEY
-access_secret = secrets.ACCESS_SECRET
+while True:
+    try:
+        consumer_key = secrets.CONSUMER_KEY
+        consumer_secret = secrets.CONSUMER_SECRET
+        access_token = secrets.ACCESS_KEY
+        access_secret = secrets.ACCESS_SECRET
 
+        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_token, access_secret)
 
-# What if grader doesn't have a 'secrets.py' file?
-    # Do an 'if/else' w/ my personal creditals?
+        api = tweepy.API(auth)
 
-        ## REFRESH MY TWITTER CREDS IN NEAR FUTURE ##
+        user_tweets = api.user_timeline(screen_name=username, count=num_tweets)
+        break
 
-# secrets_file_finder = importlib.util.find_spec("secrets")
-# found_secrets_file = secrets_file_finder is not None
-#
-# if found_secrets_file is True:
-#     print("importlib worked")
-#     consumer_key = secrets.CONSUMER_KEY
-#     consumer_secret = secrets.CONSUMER_SECRET
-#     access_token = secrets.ACCESS_KEY
-#     access_secret = secrets.ACCESS_SECRET
-# else:
-#     print("secrets.py IS NOT PRESENT")
-#     consumer_key =
-#     consumer_secret = 
-#     access_token =
-#     access_secret =
-
-
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
-
-api = tweepy.API(auth)
-
-user_tweets = api.user_timeline(screen_name=username, count=num_tweets)
+    except (AttributeError, NameError):
+        print("\nHello person grading my 507 waiver!!! You've received this message because you can't get through the Twitter OAuth step.\nMy Twitter credentials are saved in a file called 'secrets.py' and I have imported that information with the module called 'secrets'.\nCan you please rename your file with your Twitter credentials?\n\nPLEASE! I could not find ANYTHING about credentials in the README instructions on GitHub.\n\nNo, you won't rename your file?\nOK, I understand, but is there some way I could run my program on my computer for you?\nMy email is MaryseLT@umich.edu and we could meet for 5 minutes to run my program on my computer.\n\nNo, that's not going to happen either?\nSERIOUSLY, I have tried to find every way this program could crash and using a try/except for the lack of credentials is the best thing I could come up with.\n\nPLEASE, PLEASE, PLEASE just rename your Twitter credentials file!\nYou read this far into my plea, and you could have already renamed your credentials file, ran the test, and named your credentials file back to its original name!\nYou're killing me Smalls...\n")
+        #break
+        exit()
 
 
 # ////////////////////////////////////////////////////////

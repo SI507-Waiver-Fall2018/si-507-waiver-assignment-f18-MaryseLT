@@ -37,8 +37,8 @@
 
     # Imports -- you may add others but do not need to
 
-import plotly.plotly as py
-import plotly.graph_objs as go
+import plotly.plotly as py ## User Signing in w/ Their Creds
+import plotly.graph_objs as go 
 
 import csv # I added this library.
 
