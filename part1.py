@@ -120,10 +120,10 @@ access_secret = secrets.ACCESS_SECRET
 #     access_secret = secrets.ACCESS_SECRET
 # else:
 #     print("secrets.py IS NOT PRESENT")
-#     consumer_key = 'BosvDb6AvQeIqPbpL3WVin0OC'
-#     consumer_secret = 'm2S0bWNQvNfqMMwkLLrqoOekLxIWZhb2dPMHnql6CzIWA3Dgf7'
-#     access_token = '959132180646711296-bCywY8G6KkZ83e1XdGQYtKaXXqoXo0d'
-#     access_secret = 'fB6hV2zQfg9edGThBUgVwonTUqxgF59Od1Ts0lGyFeXkF'
+#     consumer_key =
+#     consumer_secret = 
+#     access_token =
+#     access_secret =
 
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
